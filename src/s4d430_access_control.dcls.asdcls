@@ -1,0 +1,10 @@
+@EndUserText.label: 'Solution: Role for View S4d430_Authorization'
+@MappingRole: true
+define role S4d430_Access_Control
+  { grant select 
+       on S4d430_authorization
+    where ( CARRID ) = aspect pfcg_auth( S_CARRID,
+                                         CARRID,
+                                         ACTVT = '03'
+                                       );
+  }

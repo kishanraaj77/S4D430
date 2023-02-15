@@ -1,0 +1,63 @@
+*&---------------------------------------------------------------------*
+*& Report s4d430_asso_s1
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT s4d430_table_func_t1.
+
+TYPES: BEGIN OF ty_s_customer,
+         id         TYPE Scustom-id,
+         name       TYPE scustom-name,
+         city       TYPE scustom-city,
+         country    TYPE scustom-country,
+       END OF ty_s_customer.
+
+TYPES ty_t_customers TYPE STANDARD TABLE OF ty_s_customer
+                         WITH NON-UNIQUE KEY id.
+
+DATA gt_customers TYPE ty_t_customers.
+
+* ALV Processing
+
+DATA go_salv TYPE REF TO cl_salv_table.
+DATA gx_excp TYPE REF TO cx_salv_error.
+
+* Selection Screen
+
+PARAMETERS pa_nam TYPE s_custname DEFAULT 'Schwarz' LOWER CASE.
+
+START-OF-SELECTION.
+
+* Data Retrieval
+*************************************************************
+
+  SELECT
+    FROM scustom
+    FIELDS id,
+           name,
+           city,
+           country
+  where name = @pa_nam
+  ORDER BY country, city, name
+
+INTO TABLE @gt_customers.
+
+* output
+*************************************************************
+  TRY.
+
+      cl_salv_table=>factory(
+        IMPORTING
+          r_salv_table   = go_salv
+        CHANGING
+          t_table        = gt_customers
+      ).
+
+* Display
+*-------------------------*
+
+      go_salv->display( ).
+
+    CATCH cx_salv_error INTO gx_excp.    "
+      MESSAGE gx_excp TYPE 'I'.
+  ENDTRY.
